@@ -1,10 +1,17 @@
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.decomposition import TruncatedSVD
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import NearestNeighbors
+import pandas as pd
+import numpy as np
 To improve the Python program, you can consider the following:
 
 1. Use type hints: Add type hints to function parameters and return values to improve readability and maintainability of the code.
 
 2. Modularize the code: Split the code into smaller functions with clear responsibilities. This will make the code easier to understand, test, and debug.
 
-3. Apply the Single Responsibility Principle (SRP): Each class and function should have a single responsibility. Consider separating the features into separate classes or modules, focusing on one task per class/function.
+3. Apply the Single Responsibility Principle(SRP): Each class and function should have a single responsibility. Consider separating the features into separate classes or modules, focusing on one task per class / function.
 
 4. Encapsulate logic in methods: Move the logic inside `main()` into separate methods to encapsulate and separate concerns. For example, move the collaborative filtering and content-based filtering logic into separate methods.
 
@@ -19,13 +26,7 @@ To improve the Python program, you can consider the following:
 Here's an improved version of the program incorporating these suggestions:
 
 ```python
-import numpy as np
-import pandas as pd
-from sklearn.neighbors import NearestNeighbors
-from sklearn.preprocessing import StandardScaler
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.decomposition import TruncatedSVD
-from sklearn.metrics.pairwise import cosine_similarity
+
 
 class User:
     def __init__(self, name: str, genres: list[str], favorite_artists: list[str], moods: list[str]):
@@ -34,12 +35,16 @@ class User:
         self.favorite_artists = favorite_artists
         self.moods = moods
 
+
 def create_user() -> User:
     name = input("Enter your name: ")
-    genres = input("Enter your preferred genres (comma-separated): ").split(",")
-    favorite_artists = input("Enter your favorite artists (comma-separated): ").split(",")
+    genres = input(
+        "Enter your preferred genres (comma-separated): ").split(",")
+    favorite_artists = input(
+        "Enter your favorite artists (comma-separated): ").split(",")
     moods = input("Enter your current mood(s) (comma-separated): ").split(",")
     return User(name.strip(), [genre.strip() for genre in genres], [artist.strip() for artist in favorite_artists], [mood.strip() for mood in moods])
+
 
 def analyze_songs() -> pd.DataFrame:
     # Load songs dataset
@@ -54,15 +59,17 @@ def analyze_songs() -> pd.DataFrame:
 
     # Create a music database with the scaled features
     music_database = pd.DataFrame(scaled_features, columns=features.columns)
-    
+
     return music_database
+
 
 def collaborative_filtering(user: User, music_database: pd.DataFrame) -> pd.DataFrame:
     # Find similar users using nearest neighbors algorithm
     model = NearestNeighbors(metric='cosine', n_neighbors=5)
     model.fit(music_database)
 
-    user_features = np.array(user.genres + user.favorite_artists).reshape(1,-1)
+    user_features = np.array(
+        user.genres + user.favorite_artists).reshape(1, -1)
     user_features = scaler.transform(user_features)
 
     distances, indices = model.kneighbors(user_features)
@@ -71,6 +78,7 @@ def collaborative_filtering(user: User, music_database: pd.DataFrame) -> pd.Data
     recommended_songs = similar_users.sample(n=5)
 
     return recommended_songs
+
 
 def content_based_filtering(user: User, music_database: pd.DataFrame) -> list[str]:
     # Extract song names and combine with genres and artists
@@ -100,6 +108,7 @@ def content_based_filtering(user: User, music_database: pd.DataFrame) -> list[st
 
     return recommended_songs
 
+
 def main():
     user = create_user()
     music_database = analyze_songs()
@@ -114,6 +123,7 @@ def main():
     print("\nContent-Based Filtering Recommendations:")
     for song in cb_recommendations:
         print(song)
+
 
 if __name__ == "__main__":
     main()
